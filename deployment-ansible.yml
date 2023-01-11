@@ -1,0 +1,45 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dev-ansible
+data:
+  # GIT_USER: auth_user # optional
+  # GIT_TOKEN: auth_token # optional
+  # GIT_BRANCH: git_branch # optional
+  GIT_REPO: https://github.com/dnum-mi/dso-playbooks.git
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ansible-sa
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "dev-ansible"
+  namespace: default
+  labels:
+    app: "dev-ansible"
+spec:
+  serviceAccountName: ansible-sa
+  containers:
+  - name: dev-ansible
+    image: "debian-slim:latest"
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1000Mi
+      requests:
+        cpu: 100m
+        memory: 200Mi
+    envFrom:
+    - configMapRef:
+        name: dev-ansible
+    volumeMounts:
+    - name: playbooks
+      mountPath: /dso/
+  volumes:
+  - name: playbooks
+    emptyDir:
+      sizeLimit: 1000M
+  restartPolicy: Never
