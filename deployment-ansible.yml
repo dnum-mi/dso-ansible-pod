@@ -1,7 +1,7 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: dev-ansible
+  name: debug-ansible
 data:
   # GIT_USER: auth_user # optional
   # GIT_TOKEN: auth_token # optional
@@ -11,19 +11,19 @@ data:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: ansible-sa
+  name: debug-ansible-sa
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "dev-ansible"
+  name: "debug-ansible"
   namespace: default
   labels:
-    app: "dev-ansible"
+    app: "debug-ansible"
 spec:
-  serviceAccountName: ansible-sa
+  serviceAccountName: debug-ansible-sa
   containers:
-  - name: dev-ansible
+  - name: debug-ansible
     image: "debian-slim:latest"
     resources:
       limits:
@@ -34,7 +34,7 @@ spec:
         memory: 200Mi
     envFrom:
     - configMapRef:
-        name: dev-ansible
+        name: debug-ansible
     volumeMounts:
     - name: playbooks
       mountPath: /dso/
@@ -43,3 +43,31 @@ spec:
     emptyDir:
       sizeLimit: 1000M
   restartPolicy: Never
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: debug-clusterole-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: debug-ansible-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: debug-ansible-sa
+  namespace: openshift-operators
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: debug-ansible-cluster-role
+rules:
+- apiGroups:
+  - ""
+  - user.openshift.io
+  - rbac.authorization.k8s.io
+  - argoproj.io
+  resources:
+  - '*'
+  verbs:
+  - '*'

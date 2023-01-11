@@ -1,11 +1,6 @@
 #!/bin/bash
 set -e
 
-# if first arg seems to be a .js file, assume you would like to run it with node 
-if [[ "$1" =~ js$ ]]; then
-    set -- node "$@"
-fi
-
 if [ -z "$CLONE_DIR" ]; then
 CLONE_DIR=/dso/
 fi
@@ -30,4 +25,5 @@ fi
 if [[ "$NODE_ENV" == "production" && "$CI" != "true" ]]; then
   ansible-playbook $PLAYBOOK_DIR/import_all.yml -i $PLAYBOOK_DIR/inventory/ --connection=local
 fi
+
 exec "$@"
