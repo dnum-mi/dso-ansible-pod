@@ -6,7 +6,7 @@ data:
   # GIT_USER: auth_user # optional
   # GIT_TOKEN: auth_token # optional
   # GIT_BRANCH: git_branch # optional
-  GIT_REPO: https://github.com/dnum-mi/dso-playbooks.git
+  GIT_REPO: github.com/dnum-mi/dso-playbooks.git
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -17,14 +17,16 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: "debug-ansible"
-  namespace: default
   labels:
     app: "debug-ansible"
 spec:
   serviceAccountName: debug-ansible-sa
   containers:
   - name: debug-ansible
-    image: "debian-slim:latest"
+    image: "ghcr.io/dnum-mi/dso-ansible-pod:main"
+    command:
+      - sleep
+      - "3600"
     resources:
       limits:
         cpu: 1000m
