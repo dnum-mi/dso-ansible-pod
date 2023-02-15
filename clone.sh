@@ -20,10 +20,10 @@ if [ ! -z "$GIT_REPO" ]; then
   if [ ! -z "$GIT_BRANCH" ]; then
     BRANCH="--branch ${GIT_BRANCH}"
   fi
-  git clone https://${AUTH}${GIT_REPO} ${CLONE_DIR} ${BRANCH}
-fi
-if [[ "$NODE_ENV" == "production" && "$CI" != "true" ]]; then
-  ansible-playbook $PLAYBOOK_DIR/import_all.yml -i $PLAYBOOK_DIR/inventory/ --connection=local
+  TMPD=$(mktemp -d)
+  git clone https://${AUTH}${GIT_REPO} ${TMPD} ${BRANCH}
+  cp -r ${TMPD}/*  ${CLONE_DIR}
+  cp -r ${TMPD}/.* ${CLONE_DIR}
 fi
 
 exec "$@"
